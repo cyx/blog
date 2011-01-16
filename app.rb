@@ -6,7 +6,7 @@ Encoding.default_external = Encoding::UTF_8
 Encoding.default_internal = Encoding::UTF_8
 
 Cuba.use Rack::Static,
-  urls: ["/images", "/js", "/fonts"],
+  urls: ["/images", "/js", "/fonts", "/css/reset.css"],
   root: File.join(ROOT_PATH, "public")
 
 Cuba.define do
@@ -28,10 +28,6 @@ Cuba.define do
 
   on get, path("css"), path("application.css") do
     res.write stylesheet("css/application.sass")
-  end
-
-  on get, path("css"), path("reset.css") do
-    res.write stylesheet("css/reset.sass")
   end
 
   on default do
