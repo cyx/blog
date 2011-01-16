@@ -145,7 +145,7 @@ end
 # machine. For our purposes here, I'll assume you already have `redis-server`
 # available.
 #
-# So follow the following steps:
+# So follow these steps:
 #
 # 1. Type `redis-server` on a terminal window.
 # 2. Download the [redis.conf][slaveof] file. Change the slaveof directive
@@ -192,3 +192,10 @@ assert slave.exists("foo") == false
 # If you are however interested, head out to 
 # [the repo](http://github.com/cyx/redis-replicated). Your comments, suggestions,
 # and/or violent reactions are much appreciated.
+
+#### Next Steps: Ohm::Slave
+
+# I'll continue with the Redis replication fun next time with my other solution,
+# `Ohm::Slave`. Until then, I encourage you to play around with Redis if you
+# haven't, and read the brand new [redis.io](http://redis.io) site.
+
