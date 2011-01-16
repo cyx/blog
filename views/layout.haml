@@ -1,0 +1,92 @@
+-# encoding: utf-8
+!!! 5
+%html
+  %head
+    %meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}/
+    %title
+      Cyril David's Technical Journal
+
+    /[if gte IE 8]
+      <meta content='IE=7' http-equiv='X-UA-Compatible' />
+    %link(href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold'
+          rel='stylesheet' type='text/css')
+
+    %link{:href => "/css/reset.css", :media => "screen", :rel => "stylesheet", :type => "text/css"}/
+    %link{:href => "/css/application.css", :media => "screen", :rel => "stylesheet", :type => "text/css"}/
+    /[if lt IE 9]
+      <script src='js/html5.js'></script>
+
+  %body
+    %nav
+      %ul
+        %li
+          %span Cyril David
+          |
+        %li
+          %a(href="http://www.google.com/profiles/cyx.ucron" target="_blank") Profile
+        %li 
+          %a(href="http://twitter.com/cyx" target="_blank") Twitter
+        %li 
+          %a(href="http://github.com/cyx" target="_blank") Github
+        %li
+          %a(href="http://github.com/cyx/resume" target="_blank") Resume
+
+    #wrapper
+      != content
+
+    %footer#bottombar
+      %section.projects
+        %h3 Active Projects
+
+        %ul
+          %li
+            %a(href="http://github.com/cyx/ohm-contrib") ohm-contrib
+          %li
+            %a(href="http://github.com/cyx/shield") shield
+          %li
+            %a(href="http://github.com/cyx/shield-contrib") shield-contrib
+          %li
+            %a(href="http://github.com/cyx/imagery") imagery
+          %li
+            %a(href="http://github.com/cyx/malone") malone
+          %li
+            %a(href="http://github.com/cyx/peons") peons
+    
+      %section.contributions
+        %h3 All sorts of contributions made to
+        %ul
+          %li
+            %a(href="http://github.com/soveran/ohm") ohm
+          %li
+            %a(href="http://github.com/soveran/cuba") cuba
+          %li
+            %a(href="http://github.com/djanowski/cutest") cutest
+          %li
+            %a(href="http://github.com/ezmobius/redis-rb") redis-rb
+          %li
+            %a(href="http://github.com/antirez/redis-doc") redis-doc
+          %li
+            %a(href="http://github.com/djanowski/joe") joe
+
+
+      %section.meta
+        %h3 About this Blog
+
+        %ul
+          %li
+            %span
+              Stands on the 
+              %a(href="http://github.com/soveran/cuba") Cuba
+              Ruby web framework.
+
+          %li
+            %span
+              Open Source Software 
+              %a(href="http://github.com/cyx/blog") hosted
+              on Github.
+
+          %li
+            %span
+              Deployed at the lovely
+              %a(href="http://heroku.com") Heroku
+              platform.

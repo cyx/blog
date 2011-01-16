@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+
+help = <<-EOT
+RPROV(1)
+
+NAME
+      rprov -- Redis Provisioning
+
+SYNOPSIS
+      rprov setup /some/path -m 1gb -h hostname
+      rprov setup /some/path -m 1gb --paranoid
+
+      rprov start /some/path
+      rprov stop  /some/path
+      rprov info  /some/path
+
+DESCRIPTION
+      Rprov is a simple ruby command line utility which helps you
+      provision and manage redis instances easily.
+
+COMMANDS
+      help        Show this usage guide
+
+      setup PATH  Provision a new Redis instance on the specified path.
+
+      start PATH  Start the previously provisioned instance located
+                  on the specified path.
+
+      stop PATH   Stop a running instance identified by a specific path.
+
+      info PATH   Get the necessary information for an instance, most notably
+                  a `REDIS_URL` which encapsulates all of the connection
+                  information necessary to access the instance.
+
+OPTIONS
+      -m          Customize the amount of max memory usable for the instance.
+                  (Defaults to no limit.)
+
+      -h          Specify the bind address for this redis instance.
+                  (Defaults to 127.0.0.1)
+
+      --paranoid  Removes some of the commands meant to be used by sysadmins
+                  and renames some into a cryptic, non-guessable one.
+
+
+EOT
+
+$:.unshift(File.expand_path("../lib", File.dirname(__FILE__)))
+
+require "clap"
+require "rprov"
+
+if ARGV.empty?
+  puts help
+  exit
+end
+
+rprov = Rprov.new
+decor = Rprov::Decorator.new(rprov)
+
+begin
+  command_and_path = Clap.run ARGV,
+    "help"       => lambda { puts help; exit },
+    "-m"         => rprov.method(:memory=),
+    "-h"         => rprov.method(:host=),
+    "--paranoid" => lambda { rprov.paranoid = true }
+
+  Clap.run command_and_path,
+    "setup"      => decor.method(:setup),
+    "start"      => decor.method(:start),
+    "stop"       => decor.method(:stop),
+    "info"       => decor.method(:info),
+
+rescue ArgumentError
+  puts help
+end

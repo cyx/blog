@@ -1,0 +1,261 @@
+body
+  background: #000 url("../images/bgtile.png")
+
+a:link, a:visited, a:active
+  color: #03C
+  text-decoration: underline
+
+a:hover
+  color: #FFF
+  background-color: #03C
+  text-decoration: none
+
+@mixin dropshadow($rad, $color)
+  -moz-box-shadow: $rad $rad rad $color
+  -webkit-box-shadow: $rad $rad $rad $color
+  box-shadow: $rad $rad $rad $color
+
+nav
+  min-width: 960px
+  max-width: 1280px
+  margin: 1em auto 0
+
+  ul
+    text-align: right
+    margin: 0
+  
+    li
+      display: inline
+      color: #AAA
+      font-family: "Droid Sans"
+      text-transform: lowercase
+      font-size: 12px
+  
+      span
+        margin-right: 1em
+
+      a:link, a:visited, a:active, a:hover
+        font-family: "Droid Sans"
+        text-transform: lowercase
+        font-size: 1em
+        font-style: normal
+        color: #CCC
+        margin-left: 1em
+        text-decoration: none
+ 
+#wrapper
+  @include dropshadow(10px, #333)
+
+  border: 1px solid #444
+  border-top: 1em solid #444
+  background-color: #FFF
+  min-width: 960px
+  max-width: 1280px
+  margin: 0 auto
+  padding: 2em 1em
+
+  h1, h2, h3, h4
+    font-family: "Droid Sans"
+    text-shadow: #EEE 2px 2px 0px   
+    color: #444
+    letter-spacing: -1px
+    padding-bottom: 0.25em
+    border-bottom: 1px solid #EEE
+
+  h1
+    font-size: 3em
+  h2
+    font-size: 2em
+  h3
+    font-size: 1.5em
+  h4
+    font-size: 1em
+
+footer#bottombar
+  min-width: 960px
+  max-width: 1280px
+  margin: 0 auto 2em
+  
+  section
+    width: 32%
+    float: left
+    margin-right: 1%
+
+    h3
+      font-family: "Droid Sans"
+      color: #777
+      font-size: 1.25em
+      text-transform: lowercase
+      font-weight: normal
+      border-bottom: 1px dotted #777
+      padding-bottom: 3px
+        
+    ul li, p
+      list-style: square
+      color: #444
+      line-height: 1.6
+      font-family: "Droid Sans"
+      font-size: 1.25em
+      
+      span
+        color: #AAA
+
+      a:link, a:visited, a:active
+        color: #DDD
+
+      a:hover
+        background-color: #DDD
+        color: #000
+
+h1#post-title
+  text-transform: uppercase
+
+#container
+  th, td
+    border: 0
+    vertical-align: top
+  
+  td.docs
+    font-family: "Droid Sans"
+    font-size: 1.25em
+    color: #444
+    border-right: 1px solid #EEE
+    max-width: 40em
+
+  td.code pre
+    font-family: "Monaco", "Lucida Console", "Courier New", monospace
+
+
+td.linenos
+  background-color: #f0f0f0
+  padding-right: 10px
+
+span.lineno
+  background-color: #f0f0f0
+  padding: 0 5px 0 5px
+
+body
+  .hll
+    background-color: #ffffcc
+  .c
+    color: #408080
+    font-style: italic
+  .err
+    border: 1px solid #FF0000
+  .k
+    color: #954121
+  .o
+    color: #666666
+  .cm
+    color: #408080
+    font-style: italic
+  .cp
+    color: #BC7A00
+  .c1, .cs
+    color: #408080
+    font-style: italic
+  .gd
+    color: #A00000
+  .ge
+    font-style: italic
+  .gr
+    color: #FF0000
+  .gh
+    color: #000080
+    font-weight: bold
+  .gi
+    color: #00A000
+  .go
+    color: #808080
+  .gp
+    color: #000080
+    font-weight: bold
+  .gs
+    font-weight: bold
+  .gu
+    color: #800080
+    font-weight: bold
+  .gt
+    color: #0040D0
+  .kc
+    color: #954121
+  .kd, .kn
+    color: #954121
+    font-weight: bold
+  .kp
+    color: #954121
+  .kr
+    color: #954121
+    font-weight: bold
+  .kt
+    color: #B00040
+  .m
+    color: #666666
+  .s
+    color: #219161
+  .na
+    color: #7D9029
+  .nb
+    color: #954121
+  .nc
+    color: #0000FF
+    font-weight: bold
+  .no
+    color: #880000
+  .nd
+    color: #AA22FF
+  .ni
+    color: #999999
+    font-weight: bold
+  .ne
+    color: #D2413A
+    font-weight: bold
+  .nf
+    color: #0000FF
+  .nl
+    color: #A0A000
+  .nn
+    color: #0000FF
+    font-weight: bold
+  .nt
+    color: #954121
+    font-weight: bold
+  .nv
+    color: #19469D
+  .ow
+    color: #AA22FF
+    font-weight: bold
+  .w
+    color: #bbbbbb
+  .mf, .mh, .mi, .mo
+    color: #666666
+  .sb, .sc
+    color: #219161
+  .sd
+    color: #219161
+    font-style: italic
+  .s2
+    color: #219161
+  .se
+    color: #BB6622
+    font-weight: bold
+  .sh
+    color: #219161
+  .si
+    color: #BB6688
+    font-weight: bold
+  .sx
+    color: #954121
+  .sr
+    color: #BB6688
+  .s1
+    color: #219161
+  .ss
+    color: #19469D
+  .bp
+    color: #954121
+  .vc, .vg, .vi
+    color: #19469D
+  .il
+    color: #666666
+

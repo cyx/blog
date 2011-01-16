@@ -1,0 +1,331 @@
+<div id='container'>
+  <table cellspacing=0 cellpadding=0>
+  <tbody>
+    <tr id='section-1'>
+      <td class=docs>
+        <h2>Synopsis</h2>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+    <tr id='section-2'>
+      <td class=docs>
+        <p> <strong>Replication</strong> <em>(taken from Wikipedia)</em> &ndash; the process of sharing information so as to ensure consistency between redundant resources, such as software or hardware components, to improve reliability, fault-tolerance, or accessibility.</p>
+
+<h3>Why is this important?</h3>
+
+<ol>
+<li><strong>Scaling reads.</strong> If your application is read-heavy, this is the easiest
+and most efficient way of scaling your web application.</li>
+<li><strong>Backups.</strong> Replication by nature backs up data from a master server
+to one or more slaves. Coupled with automated backups, you can setup a
+robust yet maintainable fault-tolerant solution for your application.</li>
+</ol>
+
+
+<h3>Redis Replication?</h3>
+
+<p> The good news is that it is very easy to do replication with redis. Off the
+ top of my head these are the only steps you need to do to setup replication:</p>
+
+<ol>
+<li>Run the master</li>
+<li>Write a configuration for a slave. Mark it as a slave of your master using
+the <code>slaveof</code> directive (see <a href="https://github.com/antirez/redis/blob/master/redis.conf#L107-L134">redis.conf</a>).</li>
+<li>Run <code>redis-server /path/to/slave.conf</code>. Done!</li>
+</ol>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="o">&lt;&lt;-</span><span class="no">EOT</span>
+
+
+<span class="sh">         _____   ______  _____   _       _____ </span>
+<span class="sh">        |  __ \ |  ____||  __ \ | |     |_   _|</span>
+<span class="sh">        | |__) || |__   | |__) || |       | |  </span>
+<span class="sh">        |  _  / |  __|  |  ___/ | |       | |  </span>
+<span class="sh">        | | \ \ | |____ | |     | |____  _| |_ </span>
+<span class="sh">        |_|  \_\|______||_|     |______||_____|</span>
+<span class="sh">        </span>
+<span class="sh">          _____         _______  _____  ____   _   _ </span>
+<span class="sh">         / ____|    /\ |__   __||_   _|/ __ \ | \ | |</span>
+<span class="sh">        | |        /  \   | |     | | | |  | ||  \| |</span>
+<span class="sh">        | |       / /\ \  | |     | | | |  | || . ` |</span>
+<span class="sh">        | |____  / ____ \ | |    _| |_| |__| || |\  |</span>
+<span class="sh">         \_____|/_/    \_\|_|   |_____|\____/ |_| \_|</span>
+
+
+<span class="no">EOT</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-3'>
+      <td class=docs>
+        <h3>What about the application level?</h3>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+    <tr id='section-4'>
+      <td class=docs>
+        <p> In an ideal world, everything happens magically. This is primarily the
+ reason why so many NoSQL solutions attempt transparent sharding and
+ replication, because application developers want to remove the
+ implementation details of the storage as much as possible from the
+ actual appliction domain logic, because once you mix the two, you probably
+ are going to make a huge mess (eventually).</p>
+
+<p> Given that, I also attempted the transparent <strong>&ldquo;just works&rdquo;</strong> solution,
+ which can easily be described by the block of code on the right:</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="k">begin</span>
+  <span class="nb">require</span> <span class="s2">&quot;redis&quot;</span>
+  <span class="nb">require</span> <span class="s2">&quot;redis/replicated&quot;</span>
+
+  <span class="n">r</span> <span class="o">=</span> <span class="no">Redis</span><span class="o">::</span><span class="no">Replicated</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="s2">&quot;redis://127.0.0.1:6379&quot;</span><span class="p">,</span> 
+                             <span class="s2">&quot;redis://127.0.0.1:6380&quot;</span><span class="o">]</span><span class="p">)</span>
+
+  <span class="n">r</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">)</span> <span class="c1"># Writes to 6379</span>
+  <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>        <span class="c1"># Fetches from 6380</span>
+<span class="k">rescue</span> <span class="no">LoadError</span><span class="p">,</span> <span class="no">Exception</span>
+  <span class="nb">puts</span> <span class="s2">&quot;Of course this won&#39;t work yet right? :-)&quot;</span>
+<span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-5'>
+      <td class=docs>
+        
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+    <tr id='section-6'>
+      <td class=docs>
+        <h3>Let the transparent magic solution, begin!</h3>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+    <tr id='section-7'>
+      <td class=docs>
+        <p> <em>Let&rsquo;s take a look at my 68 LOC solution for this. This was a prototype, mind
+ you, so much of this is still a draft and should not be used in a production
+ environment.</em></p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+    <tr id='section-8'>
+      <td class=docs>
+        <p> Following the convention of adding plugins and extensions to existing
+ Ruby gems, let&rsquo;s quickly add the class <code>Replicated</code> to the <code>Redis</code>
+ class which is defined by the <code>redis-rb</code> gem.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="k">class</span> <span class="nc">Redis</span>
+  <span class="k">class</span> <span class="nc">Replicated</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-9'>
+      <td class=docs>
+        <p> We define the API of the constructor to accept an array of
+ URIs which look like:</p>
+
+<pre><code> ["redis://127.0.0.1:6379", "redis://127.0.0.1:6380", ...]
+</code></pre>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">servers</span> <span class="o">=</span> <span class="o">[]</span><span class="p">)</span>
+      <span class="vi">@master_url</span> <span class="o">=</span> <span class="n">servers</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+      <span class="vi">@slave_urls</span> <span class="o">=</span> <span class="n">servers</span><span class="o">[</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+    <span class="k">end</span>
+  </pre></div>
+      </td>
+    </tr>
+    <tr id='section-10'>
+      <td class=docs>
+        <p> For simplicity, we will assume that the first server on the list
+ is the master server.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">master</span>
+      <span class="vi">@master</span> <span class="o">||=</span> <span class="no">Redis</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="ss">:url</span> <span class="o">=&gt;</span> <span class="vi">@master_url</span><span class="p">)</span>
+    <span class="k">end</span>
+  </pre></div>
+      </td>
+    </tr>
+    <tr id='section-11'>
+      <td class=docs>
+        <p> Also to attain our prototype faster, we jump straight to the bare
+ assumption that we only have 1 slave server.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">slave</span>
+      <span class="vi">@slave</span> <span class="o">||=</span> <span class="no">Redis</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="ss">:url</span> <span class="o">=&gt;</span> <span class="vi">@slave_urls</span><span class="o">.</span><span class="n">first</span><span class="p">)</span>
+    <span class="k">end</span>
+  </pre></div>
+      </td>
+    </tr>
+    <tr id='section-12'>
+      <td class=docs>
+        <p> This is probably the only command we&rsquo;ll need to manually define.
+ Basically selecting <code>db: 0</code> should happen both on the master and
+ slave side.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+      <span class="n">master</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+      <span class="n">slave</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+    <span class="k">end</span>
+  </pre></div>
+      </td>
+    </tr>
+    <tr id='section-13'>
+      <td class=docs>
+        <p> Ok now follows the &ldquo;boy scout&rdquo; work. Basically we list down
+ all commands that actually write (or at least depend on happening
+ on the master server). They aren&rsquo;t that many actually.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="no">WRITE_METHODS</span> <span class="o">=</span> <span class="o">[</span><span class="ss">:append</span><span class="p">,</span> <span class="ss">:blpop</span><span class="p">,</span> <span class="ss">:brpop</span><span class="p">,</span> <span class="ss">:brpoplpush</span><span class="p">,</span> <span class="ss">:decr</span><span class="p">,</span> <span class="ss">:decrby</span><span class="p">,</span>
+      <span class="ss">:del</span><span class="p">,</span> <span class="ss">:discard</span><span class="p">,</span> <span class="ss">:expire</span><span class="p">,</span> <span class="ss">:expireat</span><span class="p">,</span> <span class="ss">:getset</span><span class="p">,</span> <span class="ss">:hdel</span><span class="p">,</span> <span class="ss">:hincrby</span><span class="p">,</span> <span class="ss">:hmset</span><span class="p">,</span>
+      <span class="ss">:hset</span><span class="p">,</span> <span class="ss">:hsetnx</span><span class="p">,</span> <span class="ss">:incr</span><span class="p">,</span> <span class="ss">:incrby</span><span class="p">,</span> <span class="ss">:linsert</span><span class="p">,</span> <span class="ss">:lpop</span><span class="p">,</span> <span class="ss">:lpush</span><span class="p">,</span> <span class="ss">:lpushx</span><span class="p">,</span> <span class="ss">:lrem</span><span class="p">,</span>
+      <span class="ss">:lset</span><span class="p">,</span> <span class="ss">:ltrim</span><span class="p">,</span> <span class="ss">:move</span><span class="p">,</span> <span class="ss">:mset</span><span class="p">,</span> <span class="ss">:msetnx</span><span class="p">,</span> <span class="ss">:persist</span><span class="p">,</span> <span class="ss">:psubscribe</span><span class="p">,</span> <span class="ss">:publish</span><span class="p">,</span>
+      <span class="ss">:punsubscribe</span><span class="p">,</span> <span class="ss">:rename</span><span class="p">,</span> <span class="ss">:renamenx</span><span class="p">,</span> <span class="ss">:rpop</span><span class="p">,</span> <span class="ss">:rpoplpush</span><span class="p">,</span> <span class="ss">:rpush</span><span class="p">,</span> <span class="ss">:rpushx</span><span class="p">,</span>
+      <span class="ss">:sadd</span><span class="p">,</span> <span class="ss">:sdiffstore</span><span class="p">,</span> <span class="ss">:set</span><span class="p">,</span> <span class="ss">:setbit</span><span class="p">,</span> <span class="ss">:setex</span><span class="p">,</span> <span class="ss">:setnx</span><span class="p">,</span> <span class="ss">:setrange</span><span class="p">,</span>
+      <span class="ss">:sinterstore</span><span class="p">,</span> <span class="ss">:smove</span><span class="p">,</span> <span class="ss">:spop</span><span class="p">,</span> <span class="ss">:srem</span><span class="p">,</span> <span class="ss">:subscribe</span><span class="p">,</span> <span class="ss">:sunionstore</span><span class="p">,</span>
+      <span class="ss">:unsubscribe</span><span class="p">,</span> <span class="ss">:watch</span><span class="p">,</span> <span class="ss">:unwatch</span><span class="p">,</span> <span class="ss">:zadd</span><span class="p">,</span> <span class="ss">:zincrby</span><span class="p">,</span> <span class="ss">:zinterstore</span><span class="p">,</span> <span class="ss">:zrem</span><span class="p">,</span>
+      <span class="ss">:zremrangebyrank</span><span class="p">,</span> <span class="ss">:zremrangebyscore</span><span class="p">,</span> <span class="ss">:zunionstore</span><span class="p">,</span> <span class="ss">:[]=</span><span class="p">,</span> <span class="ss">:mapped_mset</span><span class="p">,</span>
+      <span class="ss">:mapped_msetnx</span><span class="p">,</span> <span class="ss">:mapped_hmset</span><span class="p">,</span> <span class="ss">:keys</span><span class="p">,</span> <span class="ss">:randomkey</span><span class="p">,</span> <span class="ss">:multi</span><span class="p">,</span> <span class="ss">:pipelined</span><span class="o">]</span>
+  </pre></div>
+      </td>
+    </tr>
+    <tr id='section-14'>
+      <td class=docs>
+        <p> Now we list the remaining commands as read commands.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="no">READ_METHODS</span>  <span class="o">=</span> <span class="o">[</span><span class="ss">:exists</span><span class="p">,</span> <span class="ss">:get</span><span class="p">,</span> <span class="ss">:hexists</span><span class="p">,</span> <span class="ss">:hget</span><span class="p">,</span> <span class="ss">:hgetall</span><span class="p">,</span> <span class="ss">:hkeys</span><span class="p">,</span> <span class="ss">:hlen</span><span class="p">,</span>
+      <span class="ss">:hmget</span><span class="p">,</span> <span class="ss">:hvals</span><span class="p">,</span> <span class="ss">:lindex</span><span class="p">,</span> <span class="ss">:llen</span><span class="p">,</span> <span class="ss">:lrange</span><span class="p">,</span> <span class="ss">:scard</span><span class="p">,</span> <span class="ss">:sdiff</span><span class="p">,</span> <span class="ss">:sinter</span><span class="p">,</span>
+      <span class="ss">:sismember</span><span class="p">,</span> <span class="ss">:smembers</span><span class="p">,</span> <span class="ss">:sort</span><span class="p">,</span> <span class="ss">:srandmember</span><span class="p">,</span> <span class="ss">:strlen</span><span class="p">,</span> <span class="ss">:substr</span><span class="p">,</span> <span class="ss">:sunion</span><span class="p">,</span>
+      <span class="ss">:ttl</span><span class="p">,</span> <span class="ss">:type</span><span class="p">,</span> <span class="ss">:zcard</span><span class="p">,</span> <span class="ss">:zcount</span><span class="p">,</span> <span class="ss">:zrange</span><span class="p">,</span> <span class="ss">:zrangebyscore</span><span class="p">,</span> <span class="ss">:zrank</span><span class="p">,</span>
+      <span class="ss">:zrevrange</span><span class="p">,</span> <span class="ss">:zrevrank</span><span class="p">,</span> <span class="ss">:zscore</span><span class="p">,</span> <span class="ss">:[]</span><span class="p">,</span> <span class="ss">:mget</span><span class="p">,</span> <span class="ss">:mapped_mget</span><span class="p">,</span> <span class="ss">:mapped_hmget</span><span class="p">,</span>
+      <span class="ss">:dbsize</span><span class="o">]</span>
+  </pre></div>
+      </td>
+    </tr>
+    <tr id='section-15'>
+      <td class=docs>
+        <p> Now let&rsquo;s quickly loop through all the write commands and define
+ them one by one. Let&rsquo;s just make sure to pass them along to the master.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="no">WRITE_METHODS</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">meth</span><span class="o">|</span>
+      <span class="n">define_method</span> <span class="n">meth</span> <span class="k">do</span> <span class="o">|*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bk</span><span class="o">|</span>
+        <span class="n">master</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">meth</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bk</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  </pre></div>
+      </td>
+    </tr>
+    <tr id='section-16'>
+      <td class=docs>
+        <p> Next we pass up all read commands to the slave.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="no">READ_METHODS</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">meth</span><span class="o">|</span>
+      <span class="n">define_method</span> <span class="n">meth</span> <span class="k">do</span> <span class="o">|*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bk</span><span class="o">|</span>
+        <span class="n">slave</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">meth</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bk</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-17'>
+      <td class=docs>
+        <h3>Test drive time</h3>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+    <tr id='section-18'>
+      <td class=docs>
+        <p> Let&rsquo;s quickly setup a replicated <a href="http://redis.io">Redis</a> environment on our
+ machine. For our purposes here, I&rsquo;ll assume you already have <code>redis-server</code>
+ available.</p>
+
+<p> So follow the following steps:</p>
+
+<ol>
+<li>Type <code>redis-server</code> on a terminal window.</li>
+<li>Download the <a href="https://github.com/antirez/redis/blob/master/redis.conf#L107-L134">redis.conf</a> file. Change the slaveof directive
+to point to 127.0.0.1 6379 instead.</li>
+<li>Run <code>redis-server path/to/slave.conf</code> (wherever you downloaded the
+<code>redis.conf</code> file).</li>
+<li>If you haven&rsquo;t done so already, install redis-rb via <code>gem install redis</code>.</li>
+<li>Also let&rsquo;s use the <code>cutest</code> gem, by simply doing <code>gem install cutest</code>.</li>
+</ol>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nb">require</span> <span class="s2">&quot;redis&quot;</span>
+<span class="nb">require</span> <span class="s2">&quot;cutest&quot;</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="no">Redis</span><span class="o">::</span><span class="no">Replicated</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="s2">&quot;redis://127.0.0.1:6379&quot;</span><span class="p">,</span> <span class="s2">&quot;redis://127.0.0.1:6380&quot;</span><span class="o">]</span><span class="p">)</span>
+<span class="n">r</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">)</span>
+<span class="n">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;bar&quot;</span>
+
+<span class="n">slave</span> <span class="o">=</span> <span class="no">Redis</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="s2">&quot;redis://127.0.0.1:6380&quot;</span><span class="p">)</span> 
+<span class="n">assert</span> <span class="n">slave</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;bar&quot;</span>
+
+<span class="n">r</span><span class="o">.</span><span class="n">del</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>
+<span class="n">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kp">false</span>
+<span class="n">assert</span> <span class="n">slave</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kp">false</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-19'>
+      <td class=docs>
+        <h3>So far so good?</h3>
+
+<p> Of course it works for our super simple fabricated example, but what happens
+ when you try this out in a test-suite of a fairly large enough application?</p>
+
+<p> To cut to the chase I&rsquo;ll just summarize the problems with the current
+ solution:</p>
+
+<ol>
+<li>There might be cases where there is replication lag. If your application
+cannot tolerate inconsistency, then this is a huge loss.</li>
+<li>If you&rsquo;re the type of person who is an absolute control freak,
+then this solution might not be for you.</li>
+<li>Effectively we get occassional inconsistency errors when we try and run
+this against a real-world application.</li>
+</ol>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+    <tr id='section-20'>
+      <td class=docs>
+        <h3>Wrap-up</h3>
+
+<p> I&rsquo;ve actually created a repo for this, but personally I am a control
+ freak, and I&rsquo;m not completely happy with the results of this solution.</p>
+
+<p> If you are however interested, head out to
+ <a href="http://github.com/cyx/redis-replicated">the repo</a>. Your comments, suggestions,
+ and/or violent reactions are much appreciated.</p>
+
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+  </table>
+</div>
