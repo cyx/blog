@@ -21,7 +21,9 @@ Cuba.define do
   end
 
   on get, path("") do
-    res.write haml("post", post: latest_post)
+    @post = latest_post
+
+    res.write haml("post")
   end
 
   on get, path("css"), path("application.css") do

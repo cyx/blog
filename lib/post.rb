@@ -15,7 +15,7 @@ protected
   def self.title(file)
     File.basename(file, File.extname(file)).
       gsub(/^\d{4}-\d{1,2}-\d{1,2}-/, "").
-      tr("-", " ").capitalize
+      gsub("redis", "Redis").tr("-", " ")
   end
   
   def self.html(file)
